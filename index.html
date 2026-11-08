@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom smooth transition for interactive elements */
+        .transition-all-200 {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Password Strength Bar Animations */
+        .strength-bar {
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-x-hidden">
+
+    <!-- Subtle Background Elements -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-violet-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Main Registration Card -->
+    <main class="w-full max-w-md bg-slate-800/90 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700/60 p-6 sm:p-8 relative z-10 transition-all-200">
+        
+        <!-- Header -->
+        <header class="mb-6 text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">Create an Account</h1>
+            <p class="text-sm text-slate-400">Join us today! Please fill out the form below.</p>
+        </header>
+
+        <!-- Success Alert Modal / Notification (Hidden by default) -->
+        <div id="successBanner" class="hidden mb-6 p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-center animate-fade-in shadow-lg">
+            <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 mb-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h3 class="font-semibold text-lg text-emerald-300">Registration Successful!</h3>
+            <p class="text-xs text-emerald-300/80 mt-1">Your account has been created. Redirecting...</p>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="registrationForm" novalidate class="space-y-5">
+            
+            <!-- Full Name Field -->
+            <div class="space-y-1.5">
+                <label for="fullName" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    Full Name <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" id="fullName" name="fullName" placeholder="e.g. Athi Ravichandran"
+                        class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all-200 pr-10">
+                    <!-- Status Icon (Check/Cross) -->
+                    <div id="nameStatusIcon" class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none hidden">
+                        <!-- JS toggles icon here -->
+                    </div>
+                </div>
+                <p id="nameError" class="text-xs text-rose-400 font-medium hidden min-h-[1rem] flex items-center gap-1">
+                    <span>⚠️</span> <span id="nameErrorMsg">Name is required.</span>
+                </p>
+            </div>
+
+            <!-- Email Address Field -->
+            <div class="space-y-1.5">
+                <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    Email Address <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                    <input type="email" id="email" name="email" placeholder="name@example.com"
+                        class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all-200 pr-10">
+                    <div id="emailStatusIcon" class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none hidden">
+                        <!-- JS toggles icon here -->
+                    </div>
+                </div>
+                <p id="emailError" class="text-xs text-rose-400 font-medium hidden min-h-[1rem] flex items-center gap-1">
+                    <span>⚠️</span> <span id="emailErrorMsg">Please enter a valid email address.</span>
+                </p>
+            </div>
+
+            <!-- Password Field -->
+            <div class="space-y-1.5">
+                <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    Password <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" placeholder="At least 6 characters"
+                        class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all-200 pr-20">
+                    
+                    <!-- Toggle Visibility Button -->
+                    <button type="button" id="togglePasswordBtn" class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-200 focus:outline-none text-xs font-medium transition-colors" aria-label="Toggle password visibility">
+                        <span id="toggleText">Show</span>
+                    </button>
+                </div>
+                
+                <!-- Password Strength Meter -->
+                <div id="strengthMeter" class="hidden pt-1">
+                    <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                        <div id="strengthBar" class="strength-bar h-full w-0 bg-rose-500"></div>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span id="strengthText" class="text-[10px] text-slate-400">Strength: Weak</span>
+                        <span id="passwordLengthHint" class="text-[10px] text-slate-400">Min. 6 chars</span>
+                    </div>
+                </div>
+
+                <p id="passwordError" class="text-xs text-rose-400 font-medium hidden min-h-[1rem] flex items-center gap-1">
+                    <span>⚠️</span> <span id="passwordErrorMsg">Password must be at least 6 characters.</span>
+                </p>
+            </div>
+
+            <!-- Bio Field with Character Counter -->
+            <div class="space-y-1.5">
+                <div class="flex justify-between items-center">
+                    <label for="bio" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                        Short Bio <span class="text-rose-400">*</span>
+                    </label>
+                    <span id="bioCounter" class="text-xs font-mono text-slate-400">0 / 200 characters</span>
+                </div>
+                <textarea id="bio" name="bio" rows="3" maxlength="200" placeholder="Tell us a little about yourself..."
+                    class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all-200 resize-none"></textarea>
+                <p id="bioError" class="text-xs text-rose-400 font-medium hidden min-h-[1rem] flex items-center gap-1">
+                    <span>⚠️</span> <span id="bioErrorMsg">Bio is required.</span>
+                </p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-2">
+                <button type="submit" id="submitBtn" disabled
+                    class="w-full py-3.5 px-6 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg shadow-indigo-600/30 disabled:shadow-none transition-all-200 flex items-center justify-center gap-2">
+                    <span>Create Account</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </div>
+
+        </form>
+
+        <footer class="mt-6 text-center text-xs text-slate-500">
+            Already have an account? <a href="#" class="text-indigo-400 hover:underline">Log in</a>
+        </footer>
+    </main>
+
+    <!-- Interactive JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Element References
+            const form = document.getElementById('registrationForm');
+            const fullNameInput = document.getElementById('fullName');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const bioInput = document.getElementById('bio');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Feedback & Status References
+            const bioCounter = document.getElementById('bioCounter');
+            const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+            const toggleText = document.getElementById('toggleText');
+            const strengthMeter = document.getElementById('strengthMeter');
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            const successBanner = document.getElementById('successBanner');
+
+            // Regex for Email Validation
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            // Tracking touched state to prevent showing errors before user interaction
+            const touched = {
+                fullName: false,
+                email: false,
+                password: false,
+                bio: false
+            };
+
+            // SVG Icons for Valid/Invalid state
+            const checkIcon = `
+                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>`;
+            const crossIcon = `
+                <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>`;
+
+            // Helper to set field UI state
+            function setFieldStatus(inputEl, errorEl, isValid, errorMsg = '', iconEl = null) {
+                const fieldName = inputEl.id;
+
+                if (!touched[fieldName] && inputEl.value.trim() === '') {
+                    // Reset styling if untouched and empty
+                    inputEl.classList.remove('border-emerald-500', 'border-rose-500', 'focus:ring-emerald-500', 'focus:ring-rose-500');
+                    inputEl.classList.add('border-slate-700', 'focus:ring-indigo-500');
+                    errorEl.classList.add('hidden');
+                    if (iconEl) iconEl.classList.add('hidden');
+                    return;
+                }
+
+                if (isValid) {
+                    inputEl.classList.remove('border-slate-700', 'border-rose-500', 'focus:ring-rose-500', 'focus:ring-indigo-500');
+                    inputEl.classList.add('border-emerald-500', 'focus:ring-emerald-500');
+                    errorEl.classList.add('hidden');
+                    if (iconEl) {
+                        iconEl.innerHTML = checkIcon;
+                        iconEl.classList.remove('hidden');
+                    }
+                } else {
+                    inputEl.classList.remove('border-slate-700', 'border-emerald-500', 'focus:ring-emerald-500', 'focus:ring-indigo-500');
+                    inputEl.classList.add('border-rose-500', 'focus:ring-rose-500');
+                    
+                    const msgSpan = errorEl.querySelector('span:last-child');
+                    if (msgSpan && errorMsg) msgSpan.textContent = errorMsg;
+                    
+                    errorEl.classList.remove('hidden');
+                    if (iconEl) {
+                        iconEl.innerHTML = crossIcon;
+                        iconEl.classList.remove('hidden');
+                    }
+                }
+            }
+
+            // Validation Functions
+            function validateName() {
+                const val = fullNameInput.value.trim();
+                const isValid = val.length > 0;
+                setFieldStatus(
+                    fullNameInput, 
+                    document.getElementById('nameError'), 
+                    isValid, 
+                    'Full Name is required.', 
+                    document.getElementById('nameStatusIcon')
+                );
+                return isValid;
+            }
+
+            function validateEmail() {
+                const val = emailInput.value.trim();
+                let isValid = false;
+                let msg = '';
+
+                if (val.length === 0) {
+                    msg = 'Email address is required.';
+                } else if (!emailRegex.test(val)) {
+                    msg = 'Please enter a valid email (e.g. user@domain.com).';
+                } else {
+                    isValid = true;
+                }
+
+                setFieldStatus(
+                    emailInput, 
+                    document.getElementById('emailError'), 
+                    isValid, 
+                    msg, 
+                    document.getElementById('emailStatusIcon')
+                );
+                return isValid;
+            }
+
+            function validatePassword() {
+                const val = passwordInput.value;
+                const minLength = 6;
+                const isValid = val.length >= minLength;
+                let msg = '';
+
+                if (val.length === 0) {
+                    msg = 'Password is required.';
+                    strengthMeter.classList.add('hidden');
+                } else if (!isValid) {
+                    const remaining = minLength - val.length;
+                    msg = `Password must be at least 6 characters (${remaining} more needed).`;
+                    strengthMeter.classList.remove('hidden');
+                } else {
+                    strengthMeter.classList.remove('hidden');
+                }
+
+                updatePasswordStrength(val);
+
+                setFieldStatus(
+                    passwordInput, 
+                    document.getElementById('passwordError'), 
+                    isValid, 
+                    msg
+                );
+                return isValid;
+            }
+
+            function updatePasswordStrength(val) {
+                if (val.length === 0) return;
+
+                let score = 0;
+                if (val.length >= 6) score += 1;
+                if (val.length >= 10) score += 1;
+                if (/[A-Z]/.test(val)) score += 1;
+                if (/[0-9]/.test(val)) score += 1;
+                if (/[^A-Za-z0-9]/.test(val)) score += 1;
+
+                if (val.length < 6) {
+                    strengthBar.style.width = '20%';
+                    strengthBar.className = 'strength-bar h-full bg-rose-500';
+                    strengthText.textContent = 'Too Short';
+                    strengthText.className = 'text-[10px] text-rose-400 font-medium';
+                } else if (score <= 2) {
+                    strengthBar.style.width = '40%';
+                    strengthBar.className = 'strength-bar h-full bg-amber-500';
+                    strengthText.textContent = 'Strength: Weak';
+                    strengthText.className = 'text-[10px] text-amber-400 font-medium';
+                } else if (score <= 4) {
+                    strengthBar.style.width = '75%';
+                    strengthBar.className = 'strength-bar h-full bg-blue-500';
+                    strengthText.textContent = 'Strength: Medium';
+                    strengthText.className = 'text-[10px] text-blue-400 font-medium';
+                } else {
+                    strengthBar.style.width = '100%';
+                    strengthBar.className = 'strength-bar h-full bg-emerald-500';
+                    strengthText.textContent = 'Strength: Strong';
+                    strengthText.className = 'text-[10px] text-emerald-400 font-medium';
+                }
+            }
+
+            function validateBio() {
+                const val = bioInput.value;
+                const charCount = val.length;
+                
+                // Update live character counter in exact requested format: "X / 200 characters"
+                bioCounter.textContent = `${charCount} / 200 characters`;
+
+                // Highlight counter color when reaching high counts
+                if (charCount >= 180) {
+                    bioCounter.classList.remove('text-slate-400');
+                    bioCounter.classList.add('text-amber-400');
+                } else {
+                    bioCounter.classList.remove('text-amber-400');
+                    bioCounter.classList.add('text-slate-400');
+                }
+
+                const isValid = val.trim().length > 0 && charCount <= 200;
+                setFieldStatus(
+                    bioInput, 
+                    document.getElementById('bioError'), 
+                    isValid, 
+                    'Bio field is required.'
+                );
+                return isValid;
+            }
+
+            // Form Master Validation Check
+            function checkFormValidity() {
+                const isNameValid = fullNameInput.value.trim().length > 0;
+                const isEmailValid = emailRegex.test(emailInput.value.trim());
+                const isPasswordValid = passwordInput.value.length >= 6;
+                const isBioValid = bioInput.value.trim().length > 0 && bioInput.value.length <= 200;
+
+                const allValid = isNameValid && isEmailValid && isPasswordValid && isBioValid;
+                
+                // Enable or disable Submit Button dynamically
+                submitBtn.disabled = !allValid;
+                return allValid;
+            }
+
+            // Event Listeners for Inputs (Real-time Validation)
+            fullNameInput.addEventListener('input', () => {
+                touched.fullName = true;
+                validateName();
+                checkFormValidity();
+            });
+            fullNameInput.addEventListener('blur', () => {
+                touched.fullName = true;
+                validateName();
+                checkFormValidity();
+            });
+
+            emailInput.addEventListener('input', () => {
+                touched.email = true;
+                validateEmail();
+                checkFormValidity();
+            });
+            emailInput.addEventListener('blur', () => {
+                touched.email = true;
+                validateEmail();
+                checkFormValidity();
+            });
+
+            passwordInput.addEventListener('input', () => {
+                touched.password = true;
+                validatePassword();
+                checkFormValidity();
+            });
+            passwordInput.addEventListener('blur', () => {
+                touched.password = true;
+                validatePassword();
+                checkFormValidity();
+            });
+
+            bioInput.addEventListener('input', () => {
+                touched.bio = true;
+                validateBio();
+                checkFormValidity();
+            });
+            bioInput.addEventListener('blur', () => {
+                touched.bio = true;
+                validateBio();
+                checkFormValidity();
+            });
+
+            // Toggle Password Visibility
+            togglePasswordBtn.addEventListener('click', () => {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                toggleText.textContent = isPassword ? 'Hide' : 'Show';
+            });
+
+            // Form Submission Handler
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // Mark all fields as touched
+                Object.keys(touched).forEach(key => touched[key] = true);
+
+                // Perform final validation run
+                const isNameValid = validateName();
+                const isEmailValid = validateEmail();
+                const isPasswordValid = validatePassword();
+                const isBioValid = validateBio();
+
+                if (isNameValid && isEmailValid && isPasswordValid && isBioValid) {
+                    // Show Loading State on Button
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Processing...</span>
+                    `;
+
+                    // Simulate API Submission Delay
+                    setTimeout(() => {
+                        // Display Success Banner
+                        successBanner.classList.remove('hidden');
+
+                        // Reset Form Fields
+                        form.reset();
+                        bioCounter.textContent = '0 / 200 characters';
+                        strengthMeter.classList.add('hidden');
+
+                        // Reset Touched State
+                        Object.keys(touched).forEach(key => touched[key] = false);
+
+                        // Reset input border styling
+                        [fullNameInput, emailInput, passwordInput, bioInput].forEach(input => {
+                            input.classList.remove('border-emerald-500', 'border-rose-500');
+                            input.classList.add('border-slate-700');
+                        });
+
+                        // Hide status icons
+                        document.getElementById('nameStatusIcon').classList.add('hidden');
+                        document.getElementById('emailStatusIcon').classList.add('hidden');
+
+                        // Reset Submit Button State
+                        submitBtn.innerHTML = `
+                            <span>Create Account</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        `;
+                        checkFormValidity();
+
+                        // Automatically hide success notification after 5 seconds
+                        setTimeout(() => {
+                            successBanner.classList.add('hidden');
+                        }, 5000);
+
+                    }, 1200);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
