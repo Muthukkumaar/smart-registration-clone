@@ -2,7 +2,7 @@
 
 A modern, responsive registration form built with **HTML, CSS (Tailwind), and JavaScript**. It features real-time validation, a live bio character counter, password strength feedback, and dynamic submit button control.
 
-Website Link:
+Website Link: https://muthukkumaar.github.io/smart-registration-clone/
 
 ## ✨ Key Features
 - **Real-Time Validation:** Instant feedback on Name, Email, Password, and Bio fields as you type.
